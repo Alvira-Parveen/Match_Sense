@@ -1,0 +1,100 @@
+{
+  "theme_and_archetype": {
+    "domain": "Sports Intelligence & Analytics",
+    "theme": "DARK",
+    "archetype": "Archetype 2: The Performance Pro (Elite Athleticism & Precision)",
+    "reasoning": "High-energy, command-center feel suitable for sports data. Dark mode is paired with strict WCAG contrast compliance and desaturated surface elevations for low-vision accessibility."
+  },
+  "typography": {
+    "fonts": {
+      "headings": "Barlow Condensed",
+      "body": "DM Sans",
+      "mono": "JetBrains Mono"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tighter",
+      "h2": "text-2xl sm:text-3xl font-bold uppercase tracking-tight",
+      "h3": "text-xl font-bold uppercase tracking-tight",
+      "body": "text-base leading-relaxed",
+      "data_labels": "text-xs font-bold uppercase tracking-[0.2em] text-slate-400",
+      "mono_logs": "font-mono text-xs text-[#007AFF]"
+    },
+    "notes": "Never use Inter for headings. Keep headings tightly tracked. Use mono font for the Data Agent logs."
+  },
+  "colors": {
+    "backgrounds": {
+      "base": "#0A0A0A",
+      "surface_1": "#121212",
+      "surface_2": "#1E1E1E",
+      "glass": "bg-black/60 backdrop-blur-2xl"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#94A3B8",
+      "muted": "#64748B"
+    },
+    "accents": {
+      "volt_blue": "#007AFF",
+      "signal_red": "#FF3B30",
+      "electric_volt": "#E1FF00",
+      "success_green": "#34C759"
+    },
+    "notes": "Use progressive surface lightness to signal elevation. Avoid pure black for cards to prevent halation. The contrast between text and base surface must exceed 15.8:1."
+  },
+  "layout_and_spacing": {
+    "grid_strategy": "MODE B: THE 'CONTROL ROOM' GRID",
+    "spacing_scale": "p-2, p-4, p-6, p-8, p-12",
+    "bento_rules": {
+      "gap": "gap-4 md:gap-6",
+      "cards": "1px solid border-white/10, flat background, no soft shadows. Use sharp inner contrasts."
+    }
+  },
+  "components": {
+    "bracket_visualization": {
+      "type": "Interactive Horizontal Canvas",
+      "style": "Technical Grid. border-collapse style. Connecting lines should be 2px solid #1E1E1E, highlighting to #007AFF when a path is hovered or a favorite team is selected."
+    },
+    "match_card": {
+      "style": "Neumorphic Tactical. Background matches parent (#121212). 1px border-white/10.",
+      "visuals": "Win Probability bars must be high contrast (Volt Blue vs Signal Red). xG expected goals overlay in pure white.",
+      "interaction": "Hover: border-white/30, slight -translate-y-1."
+    },
+    "shap_explanation_panel": {
+      "style": "Data Focal Point",
+      "visuals": "Horizontal bar chart using Recharts or raw Tailwind divs. Positive impact features in Volt Blue, negative in Signal Red. Muted axes."
+    },
+    "audio_briefing_player": {
+      "style": "Accessible Priority",
+      "visuals": "Large tap targets (min 48x48px). Floating sticky bar or dominant widget. High contrast play/pause icons (Phosphor Icons).",
+      "features": "Must include a 'Large Text Alt View' toggle that expands the brief into text-3xl for low-vision users."
+    },
+    "data_agent_logs": {
+      "style": "Retro-Futurism Terminal",
+      "visuals": "Deep black background, JetBrains Mono font, text-volt-blue/80. 'Thinking' indicators with small pulsing dots."
+    }
+  },
+  "accessibility": {
+    "contrast": "Strict WCAG AA. Minimum 4.5:1 for all normal text.",
+    "focus_states": "focus:ring-2 focus:ring-[#007AFF] focus:outline-none focus:ring-offset-2 focus:ring-offset-[#0A0A0A]",
+    "motion": "Respect prefers-reduced-motion. Use simple opacities over heavy transforms if enabled.",
+    "aria": "All interactive elements must have aria-labels. Audio player must announce state changes (Playing/Paused)."
+  },
+  "assets": {
+    "icons_library": "@phosphor-icons/react",
+    "images": {
+      "hero_background": "https://images.pexels.com/photos/28827841/pexels-photo-28827841.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "abstract_data_network": "https://images.unsplash.com/photo-1644088379091-d574269d422f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhdGElMjBuZXR3b3JrJTIwZGFya3xlbnwwfHx8fDE3ODMxNjc4NjN8MA&ixlib=rb-4.1.0&q=85",
+      "fan_cheering": "https://images.unsplash.com/photo-1665413811870-5b29a250f64a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBmYW4lMjBjaGVlcmluZyUyMGRhcmt8ZW58MHx8fHwxNzgzMTY3ODYzfDA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use pure HTML/Tailwind for the main structural grid. Use Shadcn components for complex interactive logic (dropdowns, dialogs).",
+    "Inject the hero background image with a heavy black overlay (bg-black/80) so it provides atmosphere without destroying data legibility.",
+    "Data visualization (SHAP, Win Probabilities) must use high contrast colors: #007AFF vs #FF3B30. Avoid using color alone to convey meaning (add labels/icons).",
+    "Implement the Audio Briefing player with large UI controls and ensure keyboard navigation works perfectly. Include a toggle that inflates the brief text to 'text-3xl' for low-vision users.",
+    "All interactive elements MUST include a data-testid attribute formatted as kebab-case, role-based (e.g., data-testid='play-audio-button').",
+    "Install the required libraries: '@phosphor-icons/react' for icons and 'recharts' for charts.",
+    "Use 'Barlow Condensed' (weight 900) for all headings, 'DM Sans' for body text, and 'JetBrains Mono' for the Data Agent logs.",
+    "Ensure dark mode surfaces use progressive lightness (#121212 -> #1E1E1E) instead of shadows to signal elevation."
+  ]
+}

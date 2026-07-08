@@ -1,0 +1,62 @@
+# MatchSense — Python Backend Dependencies
+# Install: pip install -r requirements.txt
+# Python: 3.11+
+
+# Web Framework  
+fastapi==0.110.1
+uvicorn==0.25.0
+python-multipart>=0.0.9          # form/file upload support
+
+# Database  
+pymongo==4.6.3                   # MongoDB sync driver (used by Motor internally)
+motor==3.3.1                     # async MongoDB driver for FastAPI
+
+# Data Validation & Settings  
+pydantic>=2.6.4
+email-validator>=2.2.0           # pydantic email field validation
+python-dotenv>=1.0.1             # loads .env into os.environ
+
+# Machine Learning  
+xgboost==2.1.1                   # gradient-boosted tree classifier
+scikit-learn==1.5.2              # preprocessing, train/test split, metrics
+shap==0.46.0                     # SHAP feature-importance explainer
+numpy>=1.26.0                    # numerical computing
+pandas>=2.2.0                    # CSV loading and data manipulation
+
+# Agent / LLM  
+langchain==0.3.14                # agent orchestration framework
+langchain-core==0.3.29           # base types (BaseChatModel, Tool, etc.)
+langchain-anthropic==0.3.0       # Anthropic chat model (optional)
+
+# HTTP Client  
+httpx>=0.27.0                    # async HTTP — scraper, TTS, direct LLM calls
+requests>=2.31.0                 # sync HTTP (langchain internals)
+requests-oauthlib>=2.0.0         # OAuth2 session support
+
+# Background Scheduling  
+apscheduler>=3.10.4              # async cron + interval job scheduler
+
+# Authentication & Security  
+pyjwt>=2.10.1                    # JWT encode/decode
+python-jose>=3.3.0               # JOSE / JWS / JWE (used by auth layer)
+bcrypt==4.1.3                    # password hashing
+passlib>=1.7.4                   # password hashing abstraction
+cryptography>=42.0.8             # TLS / key operations
+
+# AWS (optional — for S3 audio caching)  
+boto3>=1.34.129                  # AWS SDK (S3 audio file cache)
+
+# Timezone Support  
+tzdata>=2024.2                   # IANA timezone database (Windows + Docker)
+
+# Utilities  
+jq>=1.6.0                        # JSON querying
+typer>=0.9.0                     # CLI helpers
+
+# Dev / Testing (not needed in production)  
+pytest>=8.0.0
+pytest-xdist>=3.6.0              # parallel test execution
+black>=24.1.1                    # code formatter
+isort>=5.13.2                    # import sorter
+flake8>=7.0.0                    # linter
+mypy>=1.8.0                      # static type checker
