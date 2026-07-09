@@ -60,8 +60,9 @@ async def _job_refresh_monte_carlo() -> None:
         # Import lazily to avoid circular at module load
         from ml_engine import monte_carlo
         import cache as api_cache
+        import asyncio
 
-        result = monte_carlo(n_runs=10000)
+        result = await asyncio.to_thread(monte_carlo, 10000)
         top = result["teams"][0]
         _log_run(
             "refresh_monte_carlo", "ok",
