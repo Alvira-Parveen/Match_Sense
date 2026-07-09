@@ -157,7 +157,7 @@ async def api_simulate(runs: int = 10000):
     if cache_key in _CACHE:
         return _CACHE[cache_key]
     log_event("INFO", "monte-carlo", f"Running Monte Carlo with {runs} iterations, {len(results)} frozen matches")
-    result = await asyncio.to_thread(monte_carlo, runs, results)
+    result = await asyncio.to_thread(monte_carlo, n_runs=runs, results=results)
     _CACHE[cache_key] = result
     log_event("INFO", "monte-carlo", f"Simulation complete — top champion pick: {result['teams'][0]['name']} @ {result['teams'][0]['prob_champion']*100:.1f}%")
     return result
