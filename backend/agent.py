@@ -214,11 +214,17 @@ def log_event(level: str, tool: str, message: str) -> None:
     _AGENT_LOG.append(event)
     del _AGENT_LOG[:-60]
     if _MONGO_COLL is not None:
+        import asyncio
+        async def _insert_log():
+            try:
+                await _MONGO_COLL.insert_one(dict(event))
+            except Exception as ex:
+                # Silently log warning, database logging is optional fallback
+                log.warning(f"Async mongo log insert failed: {ex}")
         try:
-            import asyncio
-            asyncio.create_task(_MONGO_COLL.insert_one(dict(event)))
+            asyncio.create_task(_insert_log())
         except Exception as e:
-            log.warning(f"agent-log mongo insert failed: {e}")
+            log.warning(f"Failed to spawn async mongo log task: {e}")
 
 
 def recent_logs() -> List[Dict]:
