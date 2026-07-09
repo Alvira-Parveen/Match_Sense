@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 import os
 import logging
 import uuid
+import json
+import asyncio
 
 # load env before any downstream imports
 ROOT_DIR = Path(__file__).parent
@@ -32,7 +34,7 @@ import scheduler as bg_scheduler
 # ---- Mongo -----------------------------------------------------------------
 mongo_url = os.environ["MONGO_URL"]
 db_name = os.environ["DB_NAME"]
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=2000)
 db = client[db_name]
 
 # ---- App -------------------------------------------------------------------
@@ -60,10 +62,27 @@ class ResultPayload(BaseModel):
 
 
 async def _load_results() -> dict:
-    """Load all admin-marked actual results from Mongo → {match_id: winner_code}."""
+    """Load all admin-marked actual results from Mongo, falling back to local JSON on failure."""
     out = {}
-    async for doc in db.actual_results.find({}, {"_id": 0}):
-        out[doc["match_id"]] = doc["winner_code"]
+    try:
+        docs = await asyncio.wait_for(
+            db.actual_results.find({}, {"_id": 0}).to_list(100),
+            timeout=2.0
+        )
+        for doc in docs:
+            out[doc["match_id"]] = doc["winner_code"]
+        return out
+    except Exception as e:
+        logger.warning(f"MongoDB connection failed, falling back to local actual_results.json: {e}")
+    
+    # Local JSON fallback
+    json_path = os.path.join(os.path.dirname(__file__), "actual_results.json")
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r") as f:
+                return json.load(f)
+        except Exception as je:
+            logger.warning(f"Failed to read local actual_results.json: {je}")
     return out
 
 
@@ -277,7 +296,23 @@ async def api_live_refresh(x_admin_key: str = Header(default=None)):
 @api.get("/admin/results")
 async def admin_list_results(x_admin_key: str = Header(default=None)):
     _require_admin(x_admin_key)
-    docs = await db.actual_results.find({}, {"_id": 0}).to_list(100)
+    try:
+        docs = await asyncio.wait_for(
+            db.actual_results.find({}, {"_id": 0}).to_list(100),
+            timeout=2.0
+        )
+    except Exception as e:
+        logger.warning(f"Admin list actual results from MongoDB failed: {e}")
+        # fallback to local file
+        docs = []
+        json_path = os.path.join(os.path.dirname(__file__), "actual_results.json")
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r") as f:
+                    local_data = json.load(f)
+                    docs = [{"match_id": k, "winner_code": v} for k, v in local_data.items()]
+            except Exception:
+                pass
     return {"results": docs}
 
 
@@ -296,7 +331,30 @@ async def admin_set_result(payload: ResultPayload, x_admin_key: str = Header(def
         "winner_code": payload.winner_code,
         "marked_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.actual_results.update_one({"match_id": payload.match_id}, {"$set": doc}, upsert=True)
+    # Save to MongoDB
+    db_success = False
+    try:
+        await asyncio.wait_for(
+            db.actual_results.update_one({"match_id": payload.match_id}, {"$set": doc}, upsert=True),
+            timeout=2.0
+        )
+        db_success = True
+    except Exception as e:
+        logger.warning(f"Failed to record result to MongoDB: {e}")
+
+    # Backup to local JSON
+    json_path = os.path.join(os.path.dirname(__file__), "actual_results.json")
+    try:
+        data = {}
+        if os.path.exists(json_path):
+            with open(json_path, "r") as f:
+                data = json.load(f)
+        data[payload.match_id] = payload.winner_code
+        with open(json_path, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as je:
+        logger.warning(f"Failed to update local actual_results.json: {je}")
+
     # invalidate caches
     _CACHE.clear()
     log_event("INFO", "admin", f"Result recorded: {payload.match_id} → {payload.winner_code}")
@@ -306,10 +364,34 @@ async def admin_set_result(payload: ResultPayload, x_admin_key: str = Header(def
 @api.delete("/admin/results/{match_id}")
 async def admin_delete_result(match_id: str, x_admin_key: str = Header(default=None)):
     _require_admin(x_admin_key)
-    r = await db.actual_results.delete_one({"match_id": match_id})
+    # Delete from MongoDB
+    deleted_count = 0
+    try:
+        r = await asyncio.wait_for(
+            db.actual_results.delete_one({"match_id": match_id}),
+            timeout=2.0
+        )
+        deleted_count = r.deleted_count
+    except Exception as e:
+        logger.warning(f"Failed to delete result from MongoDB: {e}")
+
+    # Delete from local JSON
+    json_path = os.path.join(os.path.dirname(__file__), "actual_results.json")
+    try:
+        if os.path.exists(json_path):
+            with open(json_path, "r") as f:
+                data = json.load(f)
+            if match_id in data:
+                del data[match_id]
+                with open(json_path, "w") as f:
+                    json.dump(data, f, indent=2)
+                deleted_count = 1
+    except Exception as je:
+        logger.warning(f"Failed to delete local actual_results.json entry: {je}")
+
     _CACHE.clear()
     log_event("INFO", "admin", f"Result cleared: {match_id}")
-    return {"ok": True, "deleted": r.deleted_count}
+    return {"ok": True, "deleted": deleted_count}
 
 
 @api.get("/replay")
@@ -386,20 +468,33 @@ async def set_favorite(payload: FavoritePayload):
         "team_code": payload.team_code,
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.favorites.update_one(
-        {"session_id": payload.session_id},
-        {"$set": doc},
-        upsert=True,
-    )
+    try:
+        await asyncio.wait_for(
+            db.favorites.update_one(
+                {"session_id": payload.session_id},
+                {"$set": doc},
+                upsert=True,
+            ),
+            timeout=2.0
+        )
+    except Exception as e:
+        logger.warning(f"Failed to write favorite to MongoDB: {e}")
     return {"ok": True, "team": TEAMS_BY_CODE[payload.team_code]}
 
 
 @api.get("/favorites/{session_id}")
 async def get_favorite(session_id: str):
-    doc = await db.favorites.find_one({"session_id": session_id}, {"_id": 0})
-    if not doc:
+    try:
+        doc = await asyncio.wait_for(
+            db.favorites.find_one({"session_id": session_id}, {"_id": 0}),
+            timeout=2.0
+        )
+        if not doc:
+            return {"team": None}
+        return {"team": TEAMS_BY_CODE.get(doc["team_code"])}
+    except Exception as e:
+        logger.warning(f"Failed to read favorite from MongoDB: {e}")
         return {"team": None}
-    return {"team": TEAMS_BY_CODE.get(doc["team_code"])}
 
 
 # ---- helpers ---------------------------------------------------------------
