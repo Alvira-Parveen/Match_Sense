@@ -25,7 +25,7 @@ Designed with a premium, high-contrast dark theme (featuring glassmorphism layou
 
 ---
 
-🌐 **Deployed Link :** *[Coming soon]*
+🌐 **Deployed Link :** https://match-sense-frontend.onrender.com
 
 --- 
 
