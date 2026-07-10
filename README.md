@@ -60,14 +60,20 @@ Unlike standard sports applications, this system shows:
 
 ## 📸 Screenshots
 
-### 1. Interactive Tournament Bracket
-![Bracket Interface](https://raw.githubusercontent.com/Alvira-Parveen/Match-Sense/main/screenshots/bracket.png)
+### 1. Dashboard
+![Dashboard Interface](Screenshots/dashboard.png)
 
-### 2. SHAP Explainability & Player Metrics
-![SHAP Panel](https://raw.githubusercontent.com/Alvira-Parveen/Match-Sense/main/screenshots/shap.png)
+### 2. Interactive Tournament Knockout Bracket
+![Knockout Bracket](Screenshots/Knockout_Bracket.png)
 
-### 3. Accessible Audio Match Brief
-![Audio Player](https://raw.githubusercontent.com/Alvira-Parveen/Match-Sense/main/screenshots/audio.png)
+### 3. Third Place Playoff
+![Third Place Playoff](Screenshots/Third_Place_Playoff.png)
+
+### 4. Model Report Card
+![Model Report Card](Screenshots/Model_Report_Card.png)
+
+### 5. Agent Activity Feed
+![Agent Activity Feed](Screenshots/Agent_Activity_Feed.png)
 
 ---
 
