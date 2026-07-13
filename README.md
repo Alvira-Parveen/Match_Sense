@@ -2,9 +2,7 @@
 
 # ⚽ MatchSense : Agentic World Cup 2026 Intelligence System
 
-**Tagline:** *Beyond Scores. Understand the World Cup.*
-
-An agentic AI system that autonomously gathers World Cup match intelligence, runs ensemble predictions with explainability, simulates the remaining knockout bracket via Monte Carlo, and serves it all through a proper web app with accessible audio briefings for low-vision fans.
+**Tagline :** *Beyond Scores. Understand the World Cup.*
 
 An advanced, Multi-Agent World Cup Intelligence and Live Analytics platform built for the FIFA World Cup 2026 knockout stage. It integrates Large Language Models (LLMs), Ensemble Machine Learning (XGBoost + Poisson + ELO), SHAP explainability, and text-to-speech to deliver deep match analysis alongside accessibility-first audio briefings.
 
@@ -31,7 +29,7 @@ Designed with a premium, high-contrast dark theme (featuring glassmorphism layou
 
 ## Problem framing ❓
 
-MatchSense is a **multi-layer AI system** for the FIFA World Cup 2026 knockout stage that goes far beyond a basic win/loss predictor:
+MatchSense is a **multi-layer AI system** for the FIFA World Cup 2026 knockout stage that goes far beyond a basic win/loss predictor :
 
 | What most projects do | What MatchSense does |
 |---|---|
@@ -43,18 +41,16 @@ MatchSense is a **multi-layer AI system** for the FIFA World Cup 2026 knockout s
 | No accessibility | ARIA labels, keyboard nav, large-text toggle |
 | Local script | Deployed web app with REST API |
 
-Most "World Cup ML projects" are single-model win/loss predictors with no explainability, no live data refresh, and no accessibility consideration. MatchSense aims to be a multi-layer system: an autonomous data-gathering agent, a probabilistic ensemble model with explainability, and an accessibility-first output layer — combining three distinct technical skills into one coherent product rather than three disconnected demos, delivered as a real deployed website rather than a local script.
-
 ---
 
 ## Project Objective ✨
 Design and develop a web-based World Cup intelligence console capable of providing event-based insights, predictions, and audio briefings using an ensemble ML pipeline and LangChain agent tools.
 
-Unlike standard sports applications, this system shows:
-*   **Explainable Predictions**: Explains every prediction using SHAP force values and football reasoning instead of black-box AI.
-*   **Accessible briefings**: Converts structured match briefs into voice-narration previews (OpenAI TTS) in English, Spanish, Portuguese, and French.
-*   **Monte Carlo Simulation**: Runs 10,000 runs across the tournament tree to calculate live championship odds.
-*   **Automated Background Cron**: Live syncs, caching, and daily model retraining.
+Unlike standard sports applications, this system shows :
+*   **Explainable Predictions** : Explains every prediction using SHAP force values and football reasoning instead of black-box AI.
+*   **Accessible briefings** : Converts structured match briefs into voice-narration previews (OpenAI TTS) in English, Spanish, Portuguese, and French.
+*   **Monte Carlo Simulation** : Runs 10,000 runs across the tournament tree to calculate live championship odds.
+*   **Automated Background Cron** : Live syncs, caching, and daily model retraining.
 
 ---
 
@@ -142,39 +138,11 @@ graph TD
     API -->|Generate MP3| TTS
 ```
 
-### Layer 1 — Data Agent (agentic tool-calling)
-
-- LangChain-style agent with tool access:
-    - Tool: fetch live fixtures/scores
-    - Tool: scrape team form + head-to-head history
-    - Tool: pull injury/lineup news
-- Runs daily as the tournament progresses (Round of 16 → QF → SF → Final)
-- Output: structured JSON match briefs per fixture
-
-### Layer 2 — Prediction Engine (ML core)
-
-- Ensemble: ELO ratings + Poisson goal model + XGBoost on team features
-- SHAP for explainability — surfaces why the model favors a team (form, squad depth, head-to-head)
-- Monte Carlo simulation (10k+ runs) across the remaining bracket → live championship probability per team
-- Re-runs and updates after every result
-
-### Layer 3 — Accessibility Output
-
-- Converts the agent's structured match brief into plain-language event summaries + TTS audio narration
-- Positioned as an accessible match-briefing layer for visually impaired fans
-- Differentiates the project from generic prediction tools and ties to my broader interest in assistive tech
-
-### Web App  
-
-- Backend : FastAPI serving REST endpoints — /predict, /bracket-simulation, /match-brief, /audio-summary — wrapping the agent + ensemble + Monte Carlo + accessibility layers
-- Frontend : React (or plain HTML/CSS/JS) single-page site — bracket visualization, live win-probability bars, SHAP explanation panel, audio player for accessible briefings
-- Reasoning for the switch: Streamlit is fine for an internal demo but reads as a "notebook with buttons" rather than a shipped product; a real frontend + API separation is what a portfolio/hackathon judge expects from something pitched as "agentic system," and it's also directly deployable (Vercel/Netlify for frontend, Render/Railway for backend) instead of requiring a local Python environment to run at all — which was the actual point of failure during my build (venv/dependency issues, OpenMP errors, etc. that a static deployed site sidesteps entirely for the end viewer)
-
 ---
 
 ## 🌟 Features
 
-### 🤖 Layer 1 — Agentic Data Gathering
+### 🤖 Layer 1 — Agentic Data Gathering (agentic tool-calling)
 - **LangChain tool-calling** agent with 3 real tools: `fetch_fixture`, `form_and_h2h`, `injury_report`
 - **4-provider fallback chain**: football-data.org → API-Football → TheSportsDB → static data
 - **In-memory TTL cache** (1hr) to stay within free-tier API rate limits
@@ -201,8 +169,14 @@ graph TD
   - Monte Carlo re-run every 6 hours (offset 30 min)
   - XGBoost retrain daily at 03:00 UTC
   - Scraper cache clear every 2 hours
+ 
+### Web App  
 
----
+- Backend :- FastAPI serving REST endpoints — /predict, /bracket-simulation, /match-brief, /audio-summary — wrapping the agent + ensemble + Monte Carlo + accessibility layers
+- Frontend :- React (or plain HTML/CSS/JS) single-page site — bracket visualization, live win-probability bars, SHAP explanation panel, audio player for accessible briefings
+- Reasoning for the switch :- a real frontend + API separation is what a portfolio/hackathon judge expects from something pitched as "agentic system," and it's also directly deployable (Vercel/Netlify for frontend, Render/Railway for backend) instead of requiring a local Python environment to run at all — which was the actual point of failure during my build (venv/dependency issues, OpenMP errors, etc. that a static deployed site sidesteps entirely for the end viewer)
+
+--- 
 
 ## 🧠 How It Works
 
